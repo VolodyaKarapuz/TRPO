@@ -16,10 +16,61 @@ using namespace std;
 
 void foo(FILE* in, FILE* out)
 { 
-	for (int i = 0; i < 5; i++)
+		int q=2,i,j,k,n;
+	float a[50][50],x[50];
+	float sum,temp,error,big; 
+	
+	printf("LOADING... \n");
+
+	
 	{
-		
+		while (!feof(in))
+		{
+			fscanf(in,"%d",&n) ;
+			for(i=1;i<=n;i++)
+			{
+				for(j=1;j<=n+1;j++)
+				{
+					fscanf(in,"%f",&a[i][j]);
+				}
+			}
+			for(i=1;i<=n;i++)
+			{
+				x[i]=0;
+			}
+			do
+			{
+				big=0;
+				for(i=1;i<=n;i++)
+				{
+					sum=0;
+					for(j=1;j<=n;j++)
+					{
+						if(j!=i)
+						{
+							sum=sum+a[i][j]*x[j];
+						}
+					}
+					temp=(a[i][n+1]-sum)/a[i][i];
+					error=fabs(x[i]-temp);
+					if(error>big)
+					{
+						big=error;
+					}
+					x[i]=temp;
+				}
+			}
+			while(big>=e);
+			fprintf(out,"%-2s %4s","Solution from FILE: ","\n\n");
+			for(i=1;i<=n;i++)
+			{
+				fprintf(out,"\nx[%d]=%f",i,x[i]);
+			}
+			fprintf(out,"\n\n");	
+		}
+		q++;
 	}
+	
 }
 
 void bar(FILE* in2, FILE* out)
@@ -78,7 +129,7 @@ void bar(FILE* in2, FILE* out)
 		}
 		q++;
 	}
-	fclose(out);
+	
 }
 
 
