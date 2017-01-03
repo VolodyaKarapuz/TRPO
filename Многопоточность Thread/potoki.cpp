@@ -14,18 +14,21 @@
 
 using namespace std;
 
-void foo(FILE* in, FILE* out)
-{ 
+void foo (int& num, mutex& mtx, FILE* in, FILE* out)
+{
+
+	mtx.lock();
 		int q=2,i,j,k,n;
 	float a[50][50],x[50];
 	float sum,temp,error,big; 
 	
-	printf("LOADING... \n");
+	printf("LOADING1... \n");
 
-	
+
 	{
 		while (!feof(in))
-		{
+		{	
+			printf("POTOK 1 \n");
 			fscanf(in,"%d",&n) ;
 			for(i=1;i<=n;i++)
 			{
@@ -61,30 +64,38 @@ void foo(FILE* in, FILE* out)
 				}
 			}
 			while(big>=e);
-			fprintf(out,"%-2s %4s","Solution from FILE: ","\n\n");
+			fprintf(out,"%-2s %4s","Solution from FILE: 1","\n\n");
 			for(i=1;i<=n;i++)
 			{
 				fprintf(out,"\nx[%d]=%f",i,x[i]);
 			}
-			fprintf(out,"\n\n");	
+			fprintf(out,"\n\n ");	
 		}
-		q++;
+		q++;	
+	
 	}
+	
+	mtx.unlock();
+	usleep(50000);
+	
+		
 	
 }
 
-void bar(FILE* in2, FILE* out)
+void bar (int& num, mutex& mtx, FILE* in2, FILE* out)
 {
-	int q=2,i,j,k,n;
+	mtx.lock();		
+		int q=2,i,j,k,n;
 	float a[50][50],x[50];
 	float sum,temp,error,big; 
 	
-	printf("LOADING... \n");
+	printf("LOADING2... \n");
 
 	
 	{
 		while (!feof(in2))
-		{
+		{	
+			printf("POTOK 2 \n");
 			fscanf(in2,"%d",&n) ;
 			for(i=1;i<=n;i++)
 			{
@@ -120,39 +131,36 @@ void bar(FILE* in2, FILE* out)
 				}
 			}
 			while(big>=e);
-			fprintf(out,"%-2s %4s","Solution from FILE: ","\n\n");
+			fprintf(out,"%-2s %4s","Solution from FILE: 2","\n\n");
 			for(i=1;i<=n;i++)
 			{
 				fprintf(out,"\nx[%d]=%f",i,x[i]);
 			}
 			fprintf(out,"\n\n");	
 		}
-		q++;
+		q++;	
 	}
-	
+	mtx.unlock();
+	usleep(50000); 
 }
 
-
-int main ()
+int main (int argc, char* argv[])
 {
+	int num = 10;
+	mutex mtx;
+	
 	FILE* out;
 	FILE* in;
 	FILE* in2;
 
 	int q=2;
-	in = fopen("G:\in.txt", "r");
-	in2 = fopen("G:\in2.txt", "r");
-	out = fopen("G:\out.txt", "w");
-	
+	in = fopen(argv[2], "r");
+	in2 = fopen(argv[3], "r");
+	out = fopen(argv[1], "w");
 
-	//Establishment of an independent thread
-	thread t1 (foo, in, out);
-	thread t2 (bar, in2, out);
+	thread t1 (foo, ref(num), ref(mtx), ref(in), ref(out));
+	thread t2 (bar, ref(num), ref(mtx), ref(in2), ref(out));
+
 	t1.join();
 	t2.join();
-
-	//The main thread will not wait for the completion of this flow. It allows him to work independently
-
-
-	system("pause");
-};
+}
